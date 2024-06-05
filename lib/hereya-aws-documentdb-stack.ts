@@ -45,13 +45,17 @@ export class HereyaAwsDocumentdbStack extends cdk.Stack {
 
 
         // Store the MONGO_URL in Secrets Manager
+        const mongoUsername = new secretsmanager.Secret(this, 'mongoUsernameSecret', {
+            secretStringValue: cdk.SecretValue.unsafePlainText(username),
+            description: 'MongoDB connection string for DocumentDB cluster',
+        });
         const mongoPassword = new secretsmanager.Secret(this, 'mongoPasswordSecret', {
             secretStringValue: cdk.SecretValue.unsafePlainText(password),
             description: 'MongoDB connection string for DocumentDB cluster',
         });
 
         new cdk.CfnOutput(this, 'mongoUsername', {
-            value: username,
+            value: mongoUsername.secretArn,
         });
 
         new cdk.CfnOutput(this, 'mongoPassword', {
