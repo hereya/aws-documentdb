@@ -43,20 +43,33 @@ export class HereyaAwsDocumentdbStack extends cdk.Stack {
         const port = cluster.clusterEndpoint.port;
         const replicaSetName = 'rs0'
 
-        // Format the MONGO_URL
-        const mongoUrl = `mongodb://${username}:${password}@${host}:${port}/mydb?replicaSet=${replicaSetName}&ssl=false`;
-
 
         // Store the MONGO_URL in Secrets Manager
-        const mongoSecret = new secretsmanager.Secret(this, 'MongoDbConnectionStringSecret', {
-            secretStringValue: cdk.SecretValue.unsafePlainText(mongoUrl),
+        const mongoPassword = new secretsmanager.Secret(this, 'mongoPasswordSecret', {
+            secretStringValue: cdk.SecretValue.unsafePlainText(password),
             description: 'MongoDB connection string for DocumentDB cluster',
         });
 
-        // Output the ARN of the secret
-        new cdk.CfnOutput(this, 'mongoUrl', {
-            value: mongoSecret.secretArn,
+        new cdk.CfnOutput(this, 'mongoUsername', {
+            value: username,
         });
+
+        new cdk.CfnOutput(this, 'mongoPassword', {
+            value: mongoPassword.secretArn,
+        });
+
+        new cdk.CfnOutput(this, 'mongoHost', {
+            value: host,
+        });
+
+        new cdk.CfnOutput(this, 'mongoPort', {
+            value: port.toString(),
+        });
+
+        new cdk.CfnOutput(this, 'mongoReplicaSet', {
+            value: replicaSetName,
+        });
+
 
         // export DB name
         new cdk.CfnOutput(this, 'mongoDbname', {
