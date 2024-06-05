@@ -16,7 +16,7 @@ export class HereyaAwsDocumentdbStack extends cdk.Stack {
         const cluster = new docdb.DatabaseCluster(this, 'Database', {
             masterUser: {
                 username: 'myuser', // NOTE: 'admin' is reserved by DocumentDB
-                excludeCharacters: '\"@/:', // optional, defaults to the set "\"@/" and is also used for eventually created rotations
+                excludeCharacters: '\"@/:?&=+$,#', // optional, defaults to the set "\"@/" and is also used for eventually created rotations
             },
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE4_GRAVITON, ec2.InstanceSize.MEDIUM),
             vpcSubnets: {
