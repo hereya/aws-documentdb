@@ -44,7 +44,7 @@ export class HereyaAwsDocumentdbStack extends cdk.Stack {
         const replicaSetName = 'rs0'
 
         // Format the MONGO_URL
-        const mongoUrl = `mongodb://${username}:${password}@${host}:${port}/mydb?replicaSet=${replicaSetName}&ssl=false`;
+        const mongoUrl = `mongodb://${username}:${encodeURIComponent(password)}@${host}:${port}/mydb?replicaSet=${replicaSetName}&ssl=false`;
 
 
         // Store the MONGO_URL in Secrets Manager
