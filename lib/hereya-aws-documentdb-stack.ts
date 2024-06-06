@@ -13,10 +13,13 @@ export class HereyaAwsDocumentdbStack extends cdk.Stack {
             isDefault: true
         });
 
+        const username = 'myuser';
+
         const cluster = new docdb.DatabaseCluster(this, 'Database', {
             masterUser: {
-                username: 'myuser', // NOTE: 'admin' is reserved by DocumentDB
-                excludeCharacters: '\"@/:?&=+$,#', // optional, defaults to the set "\"@/" and is also used for eventually created rotations
+                username, // NOTE: 'admin' is reserved by DocumentDB
+                excludeCharacters: '"@/:?&=+$,#[]', // optional, defaults to the set "\"@/" and is also used for
+                // eventually created rotations
             },
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE4_GRAVITON, ec2.InstanceSize.MEDIUM),
             vpcSubnets: {
@@ -34,50 +37,35 @@ export class HereyaAwsDocumentdbStack extends cdk.Stack {
         });
         cluster.connections.allowDefaultPortFromAnyIpv4('Open to the world');
 
-
         // Extract the secret details
         const secret = cluster.secret!;
-        const username = secret.secretValueFromJson('username').unsafeUnwrap(); // Retrieve as string
         const password = secret.secretValueFromJson('password').unsafeUnwrap(); // Retrieve as string
         const host = cluster.clusterEndpoint.hostname;
         const port = cluster.clusterEndpoint.port;
-        const replicaSetName = 'rs0'
+        const databaseName = 'mydb';
 
-
-        // Store the MONGO_URL in Secrets Manager
-        const mongoUsername = new secretsmanager.Secret(this, 'mongoUsernameSecret', {
-            secretStringValue: cdk.SecretValue.unsafePlainText(username),
-            description: 'MongoDB connection string for DocumentDB cluster',
-        });
+        // Store the password in Secrets Manager
         const mongoPassword = new secretsmanager.Secret(this, 'mongoPasswordSecret', {
             secretStringValue: cdk.SecretValue.unsafePlainText(password),
-            description: 'MongoDB connection string for DocumentDB cluster',
+            description: 'Password for MongoDB user',
         });
 
         new cdk.CfnOutput(this, 'mongoUsername', {
-            value: mongoUsername.secretArn,
+            value: username
         });
 
         new cdk.CfnOutput(this, 'mongoPassword', {
             value: mongoPassword.secretArn,
         });
 
-        new cdk.CfnOutput(this, 'mongoHost', {
-            value: host,
-        });
 
-        new cdk.CfnOutput(this, 'mongoPort', {
-            value: port.toString(),
+        new cdk.CfnOutput(this, 'mongoUrl', {
+            value: `mongodb://${host}:${port}/${databaseName}?directConnection=true`,
         });
-
-        new cdk.CfnOutput(this, 'mongoReplicaSet', {
-            value: replicaSetName,
-        });
-
 
         // export DB name
         new cdk.CfnOutput(this, 'mongoDbname', {
-            value: 'mydb',
+            value: databaseName,
         });
     }
 }
