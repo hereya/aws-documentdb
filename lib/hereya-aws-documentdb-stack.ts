@@ -60,7 +60,7 @@ export class HereyaAwsDocumentdbStack extends cdk.Stack {
 
 
         new cdk.CfnOutput(this, 'mongoUrl', {
-            value: `mongodb://${host}:${port}/${databaseName}?directConnection=true`,
+            value: `mongodb://${host}:${port}/${databaseName}?directConnection=true&retryWrites=false`
         });
 
         // export DB name
